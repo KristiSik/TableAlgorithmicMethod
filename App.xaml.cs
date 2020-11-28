@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Serilog;
 
 namespace TableAlgorithmicMethod
 {
@@ -7,5 +8,11 @@ namespace TableAlgorithmicMethod
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File("logs.log")
+                .CreateLogger();
+        }
     }
 }
