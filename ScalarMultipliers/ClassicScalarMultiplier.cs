@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using TableAlgorithmicMethod.Helpers;
 using TableAlgorithmicMethod.Models;
 
@@ -10,7 +9,7 @@ namespace TableAlgorithmicMethod.ScalarMultipliers
 {
     public class ClassicScalarMultiplier : IScalarMultiplier
     {
-        public ScalarMultiplicationResult Multiply(IEnumerable<int> vector1, IEnumerable<int> vector2, FixedPointNumberFormat fixedPointNumberFormat)
+        public ScalarMultiplicationResult Multiply(IEnumerable<int> vector1, IEnumerable<int> vector2, IArithmeticOperations arithmeticOperations)
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -21,7 +20,6 @@ namespace TableAlgorithmicMethod.ScalarMultipliers
             {
                 throw new Exception("Vectors should have same amount of elements");
             }
-
 
             // TODO:
             // Show amount of memory occupied on UI
@@ -44,7 +42,7 @@ namespace TableAlgorithmicMethod.ScalarMultipliers
                 result = 0;
                 for (int i = 0; i < numberOfElements; i++)
                 {
-                    result = BinaryOperations.Add(result, BinaryOperations.Multiply(a[i], b[i], fixedPointNumberFormat));
+                    result = arithmeticOperations.Add(result, arithmeticOperations.Multiply(a[i], b[i]));
                 }
 
             }

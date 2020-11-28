@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
+using TableAlgorithmicMethod.Helpers;
 using TableAlgorithmicMethod.Models;
 
 namespace TableAlgorithmicMethod.ScalarMultipliers
 {
     public class TableAlgorithmicScalarMultiplier : IScalarMultiplier
     {
-        public ScalarMultiplicationResult Multiply(IEnumerable<int> vector1, IEnumerable<int> vector2, FixedPointNumberFormat fixedPointNumberFormat)
+        public const int MAX_INPUT_VALUES = 30;
+
+        public ScalarMultiplicationResult Multiply(IEnumerable<int> vector1, IEnumerable<int> vector2, IArithmeticOperations arithmeticOperations)
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -43,29 +45,23 @@ namespace TableAlgorithmicMethod.ScalarMultipliers
 
             ////Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
             ////Thread.CurrentThread.Priority = ThreadPriority.Highest;
-
+            ///
 
             ulong[] inputData;
-            var s = vector2.ToArray();
-            int count = (int)fixedPointNumberFormat + 1;
+            var s = vector2.Select(d => (int)(d & FloatingPointNumbersArithmeticOperations.MANTISSA_MASK)).ToArray();
+            int count = arithmeticOperations.NumberSize;
+            inputData = ConvertToSerialData(s, count);
+
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
             for (int k = 0; k < 100000; k++)
             {
-                ////inputData = ConvertToSerialData(s, fixedPointNumberFormat);
-                ////int len = inputData.Length;
                 result = 0;
                 for (int i = 0; i < count; i++)
                 {
-                    ulong value = 0;
-                    for (int j = 0; j < s.Length; j++)
-                    {
-                        value |= (uint)((s[j] >> i) & 0x1) << j;
-                    }
-
-                    result = (products[value]) + (result >> 1);
+                    result = (products[inputData[i]]) + (result >> 1);
                 }
             }
 
@@ -73,16 +69,16 @@ namespace TableAlgorithmicMethod.ScalarMultipliers
             return new ScalarMultiplicationResult((int)result, sw.ElapsedTicks);
         }
 
-        private ulong[] ConvertToSerialData(int[] vector, FixedPointNumberFormat fixedPointNumberFormat)
+        private ulong[] ConvertToSerialData(int[] vector, int numberOfValues)
         {
-            ////if (vector.Count > 64)
-            ////{
-            ////    throw new Exception("No more than 64 input values are allowed");
-            ////}
-            int count = (int)fixedPointNumberFormat + 1;
-            var result = new ulong[count];
+            if (vector.Length > MAX_INPUT_VALUES)
+            {
+                throw new Exception($"No more than {MAX_INPUT_VALUES} input values are allowed");
+            }
 
-            for (int i = 0; i < count; i++)
+            var result = new ulong[numberOfValues];
+
+            for (int i = 0; i < numberOfValues; i++)
             {
                 ulong value = 0;
                 for (int j = 0; j < vector.Length; j++)

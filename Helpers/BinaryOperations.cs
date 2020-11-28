@@ -6,26 +6,6 @@ namespace TableAlgorithmicMethod.Helpers
 {
     public static class BinaryOperations
     {
-        public static int Add(int a, int b)
-        {
-            return a + b;
-        }
-
-        public static int Multiply(int a, int b, FixedPointNumberFormat fixedPointNumberFormat)
-        {
-            switch (fixedPointNumberFormat)
-            {
-                case FixedPointNumberFormat.Q15:
-                    return (int)((uint)(((long)(a & 0x7FFF) * (b & 0x7FFF)) >> 15) | (uint)((a ^ b) & 0x8000));
-
-                case FixedPointNumberFormat.Q23:
-                    return (int)((uint)(((long)(a & 0x7FFFFF) * (b & 0x7FFFFF)) >> 23) | (uint)((a ^ b) & 0x800000));
-
-                default:
-                    throw new Exception($"Format {fixedPointNumberFormat} is not supported");
-            }
-        }
-
         public static int Parse(string binaryStr, int startIndex)
         {
             int result = 0;

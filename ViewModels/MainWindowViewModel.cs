@@ -113,10 +113,11 @@ namespace TableAlgorithmicMethod.ViewModels
                             : FixedPointNumberFormat.Q23;
 
                         List<int> weightsFx, inputsFx;
+                        var fixedPointNumbersArithmeticOperations = new FixedPointNumbersArithmeticOperations(fixedPointNumberFormat);
 
                         try
                         {
-                            weightsFx = ParseFixedPointValues(SplitRowsIntoValues(Weights, (int)fixedPointNumberFormat + 1), fixedPointNumberFormat).ToList();
+                            weightsFx = ParseBinaryValues(SplitRowsIntoValues(Weights, fixedPointNumbersArithmeticOperations.NumberSize), fixedPointNumbersArithmeticOperations.NumberSize).ToList();
                         }
                         catch (Exception ex)
                         {
@@ -125,7 +126,7 @@ namespace TableAlgorithmicMethod.ViewModels
 
                         try
                         {
-                            inputsFx = ParseFixedPointValues(SplitRowsIntoValues(Inputs, (int)fixedPointNumberFormat + 1), fixedPointNumberFormat).ToList();
+                            inputsFx = ParseBinaryValues(SplitRowsIntoValues(Inputs, fixedPointNumbersArithmeticOperations.NumberSize), fixedPointNumbersArithmeticOperations.NumberSize).ToList();
                         }
                         catch (Exception ex)
                         {
@@ -137,14 +138,15 @@ namespace TableAlgorithmicMethod.ViewModels
                             throw new Exception("The amount of weights and input values should match");
                         }
 
-                        CalculateWXFixedPoint(weightsFx, inputsFx, fixedPointNumberFormat);
+                        Calculate(weightsFx, inputsFx, fixedPointNumbersArithmeticOperations);
                         break;
 
                     case Constants.W_X_FLOATING_POINT_DATA_FORMAT_32BIT_IDENTIFIER:
-                        List<FloatingPointNumber> weightsFl, inputsFl;
+                        List<int> weightsFl, inputsFl;
+                        var floatingPointNumbersArithmeticOperations = new FloatingPointNumbersArithmeticOperations();
                         try
                         {
-                            weightsFl = ParseFloatingPointValues(SplitRowsIntoValues(Weights, 32)).ToList();
+                            weightsFl = ParseBinaryValues(SplitRowsIntoValues(Weights, floatingPointNumbersArithmeticOperations.NumberSize), floatingPointNumbersArithmeticOperations.NumberSize).ToList();
                         }
                         catch (Exception ex)
                         {
@@ -153,7 +155,7 @@ namespace TableAlgorithmicMethod.ViewModels
 
                         try
                         {
-                            inputsFl = ParseFloatingPointValues(SplitRowsIntoValues(Inputs, 32)).ToList();
+                            inputsFl = ParseBinaryValues(SplitRowsIntoValues(Inputs, floatingPointNumbersArithmeticOperations.NumberSize), floatingPointNumbersArithmeticOperations.NumberSize).ToList();
                         }
                         catch (Exception ex)
                         {
@@ -165,7 +167,7 @@ namespace TableAlgorithmicMethod.ViewModels
                             throw new Exception("The amount of weights and input values should match");
                         }
 
-                        CalculateWXFloatingPoint(weightsFl, inputsFl);
+                        Calculate(weightsFl, inputsFl, floatingPointNumbersArithmeticOperations);
                         break;
 
                     default:
@@ -185,67 +187,25 @@ namespace TableAlgorithmicMethod.ViewModels
             }
         }
 
-        private void CalculateWXFixedPoint(List<int> weights, List<int> inputs, FixedPointNumberFormat format)
+        private void Calculate(List<int> weights, List<int> inputs, IArithmeticOperations arithmeticOperations)
         {
-            ////for (int i = 0; i < 50; i++)
-            ////{
-            ////    ScalarMultiplicationResult r1 = _classicScalarMultiplier.Multiply(weights, inputs, format);
-            ////    ScalarMultiplicationResult r2 = _tableAlgorithmicScalarMultiplier.Multiply(weights, inputs, format);
-            ////}
+            ScalarMultiplicationResult classicMethodMultiplicationResult = _classicScalarMultiplier.Multiply(weights, inputs, arithmeticOperations);
+            ScalarMultiplicationResult tableAlgorithmicMethodMultiplicationResult = _tableAlgorithmicScalarMultiplier.Multiply(weights, inputs, arithmeticOperations);
+            ////Log.Information("Finished scalar multiplication of two vectors of fixed-point {Format} numbers in {Elapsed} ticks.", format, classicMethodMultiplicationResult.ElapsedTicks);
+            Log.Information("{First} and {Second}", BinaryOperations.ToString(classicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize), BinaryOperations.ToString(tableAlgorithmicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize));
 
-            ScalarMultiplicationResult classicMethodMultiplicationResult = _classicScalarMultiplier.Multiply(weights, inputs, format);
-            ScalarMultiplicationResult tableAlgorithmicMethodMultiplicationResult = _tableAlgorithmicScalarMultiplier.Multiply(weights, inputs, format);
-            Log.Information("Finished scalar multiplication of two vectors of fixed-point {Format} numbers in {Elapsed} ticks.", format, classicMethodMultiplicationResult.ElapsedTicks);
-            Log.Information("{First} and {Second}", BinaryOperations.ToString(classicMethodMultiplicationResult.Value, (int)format + 1), BinaryOperations.ToString(tableAlgorithmicMethodMultiplicationResult.Value, (int)format + 1));
-
-            Result = BinaryOperations.ToString(classicMethodMultiplicationResult.Value, (int)format + 1);
+            Result = BinaryOperations.ToString(classicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize);
             _tableAlgorithmicMethodColumnSeries.Values[0] = tableAlgorithmicMethodMultiplicationResult.ElapsedTicks;
             _classicMethodColumnSeries.Values[0] = classicMethodMultiplicationResult.ElapsedTicks;
         }
 
-        private void CalculateWXFloatingPoint(List<FloatingPointNumber> weights, List<FloatingPointNumber> inputs)
-        {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
-            FloatingPointNumber result = null;
-            int numberOfElements = weights.Count;
-            for (int i = 0; i < numberOfElements; i++)
-            {
-                result = weights[i] * inputs[i];
-            }
-
-            sw.Stop();
-
-            Log.Information("Finished. It took {Elapsed} ticks.", sw.ElapsedTicks);
-
-            Result = result.ToString();
-            _tableAlgorithmicMethodColumnSeries.Values[0] = 0;
-            _classicMethodColumnSeries.Values[0] = (int)sw.ElapsedTicks;
-        }
-
-        private IEnumerable<int> ParseFixedPointValues(IEnumerable<string> stringValues, FixedPointNumberFormat fixedPointNumberFormat)
+        private IEnumerable<int> ParseBinaryValues(IEnumerable<string> stringValues, int numberSize)
         {
             return stringValues.Select((s, i) =>
             {
                 try
                 {
-                    return BinaryOperations.Parse(s, (int)fixedPointNumberFormat);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Failed to parse value '{s}' (at index {i})", ex);
-                }
-            });
-        }
-
-        private IEnumerable<FloatingPointNumber> ParseFloatingPointValues(IEnumerable<string> stringValues)
-        {
-            return stringValues.Select((s, i) =>
-            {
-                try
-                {
-                    return new FloatingPointNumber(s);
+                    return BinaryOperations.Parse(s, numberSize - 1);
                 }
                 catch (Exception ex)
                 {
