@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
 using Prism.Commands;
 using Prism.Mvvm;
 using Serilog;
+using TableAlgorithmicMethod.DataAccess;
+using TableAlgorithmicMethod.DataAccess.Models;
 using TableAlgorithmicMethod.Helpers;
 using TableAlgorithmicMethod.Models;
 using TableAlgorithmicMethod.ScalarMultipliers;
+using TableAlgorithmicMethod.Views;
 
 namespace TableAlgorithmicMethod.ViewModels
 {
@@ -35,17 +39,20 @@ namespace TableAlgorithmicMethod.ViewModels
             _tableAlgorithmicScalarMultiplier = new TableAlgorithmicScalarMultiplier();
 
             CalculateCommand = new DelegateCommand(ExecuteCalculateCommand);
+            ToggleStatisticsCommand = new DelegateCommand(ExecuteToggleStatisticsCommand);
 
             _tableAlgorithmicMethodColumnSeries = new ColumnSeries
             {
                 Title = "Table-algorithmic method",
                 Values = new ChartValues<long> { 0 },
+                Fill = new SolidColorBrush(Color.FromRgb(0x58, 0x50, 0x8d)),
                 DataLabels = true,
                 MinHeight = 15,
             };
             _classicMethodColumnSeries = new ColumnSeries
             {
                 Title = "Classic method",
+                Fill = new SolidColorBrush(Color.FromRgb(0xff, 0xa6, 0x00)),
                 Values = new ChartValues<long> { 0 },
                 DataLabels = true,
             };
@@ -94,6 +101,22 @@ namespace TableAlgorithmicMethod.ViewModels
         public string[] ChartLabels { get; set; }
 
         public DelegateCommand CalculateCommand { get; }
+
+        public DelegateCommand ToggleStatisticsCommand { get; }
+
+        private bool _isShownStatistics;
+        public bool IsShownStatistics
+        {
+            get => _isShownStatistics;
+            set => SetProperty(ref _isShownStatistics, value);
+        }
+
+        private bool _isShownMainWindow = true;
+        public bool IsShownMainWindow
+        {
+            get => _isShownMainWindow;
+            set => SetProperty(ref _isShownMainWindow, value);
+        }
 
         private void ExecuteCalculateCommand()
         {
@@ -187,6 +210,12 @@ namespace TableAlgorithmicMethod.ViewModels
             }
         }
 
+        private void ExecuteToggleStatisticsCommand()
+        {
+            var w = new StatisticsWindow();
+            w.Show();
+        }
+
         private void Calculate(List<int> weights, List<int> inputs, IArithmeticOperations arithmeticOperations)
         {
             ScalarMultiplicationResult classicMethodMultiplicationResult = _classicScalarMultiplier.Multiply(weights, inputs, arithmeticOperations);
@@ -197,6 +226,7 @@ namespace TableAlgorithmicMethod.ViewModels
             Result = BinaryOperations.ToString(classicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize);
             _tableAlgorithmicMethodColumnSeries.Values[0] = tableAlgorithmicMethodMultiplicationResult.ElapsedTicks;
             _classicMethodColumnSeries.Values[0] = classicMethodMultiplicationResult.ElapsedTicks;
+            Task.Run(async () => await StoreResultToDatabase(SelectedDataFormatIdentifier, weights.Count, classicMethodMultiplicationResult.ElapsedTicks, tableAlgorithmicMethodMultiplicationResult.ElapsedTicks));
         }
 
         private IEnumerable<int> ParseBinaryValues(IEnumerable<string> stringValues, int numberSize)
@@ -212,6 +242,31 @@ namespace TableAlgorithmicMethod.ViewModels
                     throw new Exception($"Failed to parse value '{s}' (at index {i})", ex);
                 }
             });
+        }
+
+        private async Task StoreResultToDatabase(int dataFormatId, int numberOfElements, long classicMethodElapsedTicks, long tableAlgorithmicMethodElapsedTicks)
+        {
+            using var dbContext = new FileDbContext();
+            await dbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            
+            var statistic = dbContext.Statistics.FirstOrDefault(stat => stat.DataFormatId == dataFormatId && stat.NumberOfElements == numberOfElements);
+            if (statistic == null)
+            {
+                statistic = new Calculation
+                {
+                    DataFormatId = dataFormatId,
+                    NumberOfElements = numberOfElements,
+                };
+                var e = dbContext.Statistics.Add(statistic);
+                e.State = Microsoft.EntityFrameworkCore.EntityState.Added;
+                await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            }
+
+            statistic.ClassicMethodElapsedTicks = classicMethodElapsedTicks;
+            statistic.TableAlgorithmicMethodElapsedTicks = tableAlgorithmicMethodElapsedTicks;
+            dbContext.Statistics.Update(statistic);
+
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         private IEnumerable<string> SplitRowsIntoValues(string lines, int maxLength)
