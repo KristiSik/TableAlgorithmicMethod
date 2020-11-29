@@ -9,11 +9,12 @@ using LiveCharts.Wpf;
 using Prism.Commands;
 using Prism.Mvvm;
 using Serilog;
+using TableAlgorithmicMethod.BusinessLogic.Arithmetic;
+using TableAlgorithmicMethod.BusinessLogic.ScalarMultipliers;
 using TableAlgorithmicMethod.DataAccess;
 using TableAlgorithmicMethod.DataAccess.Models;
-using TableAlgorithmicMethod.Helpers;
+using TableAlgorithmicMethod.Utility;
 using TableAlgorithmicMethod.Models;
-using TableAlgorithmicMethod.ScalarMultipliers;
 using TableAlgorithmicMethod.Views;
 
 namespace TableAlgorithmicMethod.ViewModels
@@ -39,7 +40,7 @@ namespace TableAlgorithmicMethod.ViewModels
             _tableAlgorithmicScalarMultiplier = new TableAlgorithmicScalarMultiplier();
 
             CalculateCommand = new DelegateCommand(ExecuteCalculateCommand);
-            ToggleStatisticsCommand = new DelegateCommand(ExecuteToggleStatisticsCommand);
+            ShowStatisticsCommand = new DelegateCommand(ExecuteShowStatisticsCommand);
 
             _tableAlgorithmicMethodColumnSeries = new ColumnSeries
             {
@@ -47,7 +48,6 @@ namespace TableAlgorithmicMethod.ViewModels
                 Values = new ChartValues<long> { 0 },
                 Fill = new SolidColorBrush(Color.FromRgb(0x58, 0x50, 0x8d)),
                 DataLabels = true,
-                MinHeight = 15,
             };
             _classicMethodColumnSeries = new ColumnSeries
             {
@@ -61,7 +61,6 @@ namespace TableAlgorithmicMethod.ViewModels
                 _tableAlgorithmicMethodColumnSeries,
                 _classicMethodColumnSeries,
             };
-
 
             ChartLabels = new[] { "Elapsed ticks for calculation" };
         }
@@ -102,21 +101,7 @@ namespace TableAlgorithmicMethod.ViewModels
 
         public DelegateCommand CalculateCommand { get; }
 
-        public DelegateCommand ToggleStatisticsCommand { get; }
-
-        private bool _isShownStatistics;
-        public bool IsShownStatistics
-        {
-            get => _isShownStatistics;
-            set => SetProperty(ref _isShownStatistics, value);
-        }
-
-        private bool _isShownMainWindow = true;
-        public bool IsShownMainWindow
-        {
-            get => _isShownMainWindow;
-            set => SetProperty(ref _isShownMainWindow, value);
-        }
+        public DelegateCommand ShowStatisticsCommand { get; }
 
         private void ExecuteCalculateCommand()
         {
@@ -210,7 +195,7 @@ namespace TableAlgorithmicMethod.ViewModels
             }
         }
 
-        private void ExecuteToggleStatisticsCommand()
+        private void ExecuteShowStatisticsCommand()
         {
             var w = new StatisticsWindow();
             w.Show();

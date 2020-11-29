@@ -2,7 +2,7 @@
 using System.Text;
 using TableAlgorithmicMethod.Models;
 
-namespace TableAlgorithmicMethod.Helpers
+namespace TableAlgorithmicMethod.Utility
 {
     public static class BinaryOperations
     {

@@ -1,4 +1,4 @@
-﻿namespace TableAlgorithmicMethod.Helpers
+﻿namespace TableAlgorithmicMethod.Utility
 {
     public static class Constants
     {

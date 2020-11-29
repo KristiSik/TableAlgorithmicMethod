@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TableAlgorithmicMethod", "T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TableAlgorithmicMethod.DataAccess", "..\TableAlgorithmicMethod.DataAccess\TableAlgorithmicMethod.DataAccess.csproj", "{CAD13AD2-A49B-4024-8E17-05169AA9CBD0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TableAlgorithmicMethod.BusinessLogic", "..\TableAlgorithmicMethod.BusinessLogic\TableAlgorithmicMethod.BusinessLogic.csproj", "{3CEF0964-8778-48A6-B040-7F7067803F4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{CAD13AD2-A49B-4024-8E17-05169AA9CBD0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CAD13AD2-A49B-4024-8E17-05169AA9CBD0}.Release|x64.ActiveCfg = Release|Any CPU
 		{CAD13AD2-A49B-4024-8E17-05169AA9CBD0}.Release|x64.Build.0 = Release|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Debug|x64.Build.0 = Debug|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Release|x64.ActiveCfg = Release|Any CPU
+		{3CEF0964-8778-48A6-B040-7F7067803F4C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

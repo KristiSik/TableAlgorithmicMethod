@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TableAlgorithmicMethod.BusinessLogic\TableAlgorithmicMethod.BusinessLogic.csproj" />
     <ProjectReference Include="..\TableAlgorithmicMethod.DataAccess\TableAlgorithmicMethod.DataAccess.csproj" />
   </ItemGroup>
 
