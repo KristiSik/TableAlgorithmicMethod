@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf" xmlns:views="clr-namespace:TableAlgorithmicMethod.Views"
-                      Background="#fcfcfc"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        Background="#fcfcfc"
         mc:Ignorable="d" TitleCharacterCasing="Normal" WindowStartupLocation="CenterScreen"
         Title="Table-algorithmic method" Height="500" Width="1000" MinWidth="900">
     <Border Padding="20">
@@ -45,10 +46,12 @@
                     </Grid>
 
                     <ComboBox Grid.Row="1" Grid.Column="0" DisplayMemberPath="Name"
-                          ItemsSource="{Binding DataFormats}"
+                          ItemsSource="{Binding DataFormats}" Focusable="False"
                           SelectedValuePath="Identifier" SelectedValue="{Binding SelectedDataFormatIdentifier}"
                           MinHeight="25" Height="25" />
-                    <Button Grid.Row="1" Grid.Column="1" Height="40" Width="40" Command="{Binding CalculateCommand}"/>
+                    <Button ToolTip="Calculate" Grid.Row="1" Grid.Column="1" Height="40" Width="40" Command="{Binding CalculateCommand}">
+                        <iconPacks:BootstrapIcons Kind="CalculatorFill" Height="25"/>
+                    </Button>
                     <TextBox Grid.Row="1" Grid.Column="2" controls:TextBoxHelper.Watermark="Result"
                          Text="{Binding Result}" MaxLines="1" Height="25" MinHeight="25"
                          IsReadOnly="True" />
