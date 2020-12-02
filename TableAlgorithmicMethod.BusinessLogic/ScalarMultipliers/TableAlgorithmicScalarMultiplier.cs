@@ -15,21 +15,20 @@ namespace TableAlgorithmicMethod.BusinessLogic.ScalarMultipliers
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            List<int> weights = vector1.ToList();
+            int[] weights = vector1.ToArray();
 
-            ////if (weights.Count != inputData.Count)
-            ////{
-            ////    throw new Exception("Vectors should have same amount of elements");
-            ////}
+            if (vector1.Count() != vector2.Count())
+            {
+                throw new Exception("Vectors should have same amount of elements");
+            }
 
-            
-            ulong numberOfProducts = (ulong)Math.Pow(2, weights.Count);
+            ulong numberOfProducts = (ulong)Math.Pow(2, weights.Length);
             uint[] products = new uint[numberOfProducts];
 
             for (ulong i = 0; i < numberOfProducts; i++)
             {
                 uint product = 0;
-                for (int j = 0; j < weights.Count; j++)
+                for (int j = 0; j < weights.Length; j++)
                 {
                     if ((((ulong)1 << j) & i) > 0)
                     {

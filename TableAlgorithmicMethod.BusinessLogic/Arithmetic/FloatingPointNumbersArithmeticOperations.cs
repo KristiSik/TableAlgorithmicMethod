@@ -47,13 +47,13 @@
 
         private static void NormalizeManissa(ref int mantissa, ref int exponent)
         {
-            while ((mantissa & EXPONENT_MASK) > 0)
+            while (mantissa != 0 && (mantissa & EXPONENT_MASK) > 0)
             {
                 mantissa >>= 1;
                 exponent += EXPONENT_ONE;
             }
 
-            while ((mantissa & MANTISSA_FIRST_BIT_MASK) == 0)
+            while (mantissa != 0 && (mantissa & MANTISSA_FIRST_BIT_MASK) == 0)
             {
                 mantissa <<= 1;
                 exponent -= EXPONENT_ONE;

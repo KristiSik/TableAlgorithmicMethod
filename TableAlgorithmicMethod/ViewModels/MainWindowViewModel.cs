@@ -179,7 +179,7 @@ namespace TableAlgorithmicMethod.ViewModels
                         break;
 
                     default:
-                        throw new Exception($"{SelectedDataFormatIdentifier} data format identifier is not supported");
+                        throw new Exception($"{DataFormats[SelectedDataFormatIdentifier].Name} data format identifier is not supported");
                 }
             }
             catch (Exception ex)
@@ -208,10 +208,16 @@ namespace TableAlgorithmicMethod.ViewModels
             ////Log.Information("Finished scalar multiplication of two vectors of fixed-point {Format} numbers in {Elapsed} ticks.", format, classicMethodMultiplicationResult.ElapsedTicks);
             Log.Information("{First} and {Second}", BinaryOperations.ToString(classicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize), BinaryOperations.ToString(tableAlgorithmicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize));
 
-            Result = BinaryOperations.ToString(classicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize);
+            UpdateResult(classicMethodMultiplicationResult.Value, tableAlgorithmicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize);
             _tableAlgorithmicMethodColumnSeries.Values[0] = tableAlgorithmicMethodMultiplicationResult.ElapsedTicks;
             _classicMethodColumnSeries.Values[0] = classicMethodMultiplicationResult.ElapsedTicks;
             Task.Run(async () => await StoreResultToDatabase(SelectedDataFormatIdentifier, weights.Count, classicMethodMultiplicationResult.ElapsedTicks, tableAlgorithmicMethodMultiplicationResult.ElapsedTicks));
+        }
+
+        private void UpdateResult(int classicMethodMultiplicationResultValue, int tableAlgorithmicMethodMultiplicationResultValue, int numberSize)
+        {
+            Result = $"{BinaryOperations.ToString(classicMethodMultiplicationResultValue, numberSize)} – Classic" +
+                $"\n{BinaryOperations.ToString(tableAlgorithmicMethodMultiplicationResultValue, numberSize)} – Table-algorithmic";
         }
 
         private IEnumerable<int> ParseBinaryValues(IEnumerable<string> stringValues, int numberSize)

@@ -12,10 +12,10 @@ namespace TableAlgorithmicMethod.BusinessLogic.ScalarMultipliers
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            List<int> a = vector1.ToList();
-            List<int> b = vector2.ToList();
+            int[] a = vector1.ToArray();
+            int[] b = vector2.ToArray();
             
-            if (a.Count != b.Count)
+            if (a.Length != b.Length)
             {
                 throw new Exception("Vectors should have same amount of elements");
             }
@@ -25,10 +25,8 @@ namespace TableAlgorithmicMethod.BusinessLogic.ScalarMultipliers
             // Add selector of number of multiplies (k)
 
 
-
-
             int result = 0;
-            int numberOfElements = a.Count;
+            int numberOfElements = a.Length;
 
             ////Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
             ////Thread.CurrentThread.Priority = ThreadPriority.Highest;

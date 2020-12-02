@@ -8,66 +8,64 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         Background="#fcfcfc"
         mc:Ignorable="d" TitleCharacterCasing="Normal" WindowStartupLocation="CenterScreen"
-        Title="Table-algorithmic method" Height="500" Width="1000" MinWidth="900">
+        Title="Table-algorithmic method" Height="500" Width="1200" MinWidth="1200">
     <Border Padding="20">
         <Grid>
-            <Grid controls:VisibilityHelper.IsCollapsed="{Binding IsShownStatistics}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="70" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0" Grid.Column="0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBox Grid.Row="0" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MinWidth="270" Text="{Binding Weights}" />
-                        <TextBlock Grid.Row="1" Text="Weights W" HorizontalAlignment="Center" Margin="7" FontWeight="Bold" />
-                    </Grid>
-
-                    <Grid Grid.Row="0" Grid.Column="2">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBox Grid.Row="0" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MinWidth="270" Text="{Binding Inputs}"/>
-                        <TextBlock Grid.Row="1" Text="Input values X" HorizontalAlignment="Center" Margin="7" FontWeight="Bold" />
-                    </Grid>
-
-                    <ComboBox Grid.Row="1" Grid.Column="0" DisplayMemberPath="Name"
-                          ItemsSource="{Binding DataFormats}" Focusable="False"
-                          SelectedValuePath="Identifier" SelectedValue="{Binding SelectedDataFormatIdentifier}"
-                          MinHeight="25" Height="25" />
-                    <Button ToolTip="Calculate" Grid.Row="1" Grid.Column="1" Height="40" Width="40" Command="{Binding CalculateCommand}">
-                        <iconPacks:BootstrapIcons Kind="CalculatorFill" Height="25"/>
-                    </Button>
-                    <TextBox Grid.Row="1" Grid.Column="2" controls:TextBoxHelper.Watermark="Result"
-                         Text="{Binding Result}" MaxLines="1" Height="25" MinHeight="25"
-                         IsReadOnly="True" />
+                    <TextBox Grid.Row="0" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MinWidth="270" Text="{Binding Weights}" />
+                    <TextBlock Grid.Row="1" Text="Weights W" HorizontalAlignment="Center" Margin="7" FontWeight="Bold" />
                 </Grid>
-                <Grid Grid.Column="1" Margin="15 0 0 0">
+
+                <Grid Grid.Row="0" Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <lvc:CartesianChart Grid.Row="0" Series="{Binding ChartSeries}" LegendLocation="Bottom">
-                        <lvc:CartesianChart.AxisX>
-                            <lvc:Axis MinValue="0" Labels="{Binding ChartLabels}"/>
-                        </lvc:CartesianChart.AxisX>
-                    </lvc:CartesianChart>
-                    <Button Grid.Row="1" Height="25" Margin="0 10 0 7" Content="Statistics" Padding="0" Command="{Binding ShowStatisticsCommand}"/>
+                    <TextBox Grid.Row="0" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MinWidth="270" Text="{Binding Inputs}"/>
+                    <TextBlock Grid.Row="1" Text="Input values X" HorizontalAlignment="Center" Margin="7" FontWeight="Bold" />
                 </Grid>
+
+                <ComboBox Grid.Row="1" Grid.Column="0" DisplayMemberPath="Name"
+                        ItemsSource="{Binding DataFormats}" Focusable="False"
+                        SelectedValuePath="Identifier" SelectedValue="{Binding SelectedDataFormatIdentifier}"
+                        MinHeight="25" Height="25" />
+                <Button ToolTip="Calculate" Grid.Row="1" Grid.Column="1" Height="40" Width="40" Command="{Binding CalculateCommand}">
+                    <iconPacks:BootstrapIcons Kind="CalculatorFill" Height="25"/>
+                </Button>
+                <TextBox Grid.Row="1" Grid.Column="2" Padding="3"
+                    Text="{Binding Result}" MaxLines="2" Height="40" MinHeight="25"
+                    IsReadOnly="True" />
+            </Grid>
+            <Grid Grid.Column="1" Margin="15 0 0 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <lvc:CartesianChart Grid.Row="0" Series="{Binding ChartSeries}" LegendLocation="Bottom">
+                    <lvc:CartesianChart.AxisX>
+                        <lvc:Axis MinValue="0" Labels="{Binding ChartLabels}"/>
+                    </lvc:CartesianChart.AxisX>
+                </lvc:CartesianChart>
+                <Button Grid.Row="1" Height="25" Margin="0 10 0 7" Content="Statistics" Padding="0" Command="{Binding ShowStatisticsCommand}"/>
             </Grid>
         </Grid>
     </Border>
