@@ -95,6 +95,13 @@ namespace TableAlgorithmicMethod.ViewModels
             set => SetProperty(ref _selectedDataFormatIdentifier, value);
         }
 
+        private string _statusBarText = "Ready.";
+        public string StatusBarText
+        {
+            get => _statusBarText;
+            set => SetProperty(ref _statusBarText, value);
+        }
+
         public SeriesCollection ChartSeries { get; set; }
 
         public string[] ChartLabels { get; set; }
@@ -111,6 +118,8 @@ namespace TableAlgorithmicMethod.ViewModels
                 {
                     throw new Exception("At least one weight and input value should be specified");
                 }
+
+                StatusBarText = "Calculating...";
 
                 switch (SelectedDataFormatIdentifier)
                 {
@@ -147,6 +156,35 @@ namespace TableAlgorithmicMethod.ViewModels
                         }
 
                         Calculate(weightsFx, inputsFx, fixedPointNumbersArithmeticOperations);
+                        break;
+
+                    case Constants.W_FLOATING_POINT_X_FIXED_POINT_DATA_FORMAT_32BIT_IDENTIFIER:
+                        List<int> weightsFlFx, inputsFlFx;
+                        var fixedFloatingPointNumbersArithmeticOperations = new FixedFloatingPointNumbersArithmeticOperations(FixedPointNumberFormat.Q31);
+                        try
+                        {
+                            weightsFlFx = ParseBinaryValues(SplitRowsIntoValues(Weights, fixedFloatingPointNumbersArithmeticOperations.NumberSize), fixedFloatingPointNumbersArithmeticOperations.NumberSize).ToList();
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("Failed to read weights", ex);
+                        }
+
+                        try
+                        {
+                            inputsFlFx = ParseBinaryValues(SplitRowsIntoValues(Inputs, fixedFloatingPointNumbersArithmeticOperations.NumberSize), fixedFloatingPointNumbersArithmeticOperations.NumberSize).ToList();
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("Failed to read input values", ex);
+                        }
+
+                        if (weightsFlFx.Count != inputsFlFx.Count)
+                        {
+                            throw new Exception("The amount of weights and input values should match");
+                        }
+
+                        Calculate(weightsFlFx, inputsFlFx, fixedFloatingPointNumbersArithmeticOperations);
                         break;
 
                     case Constants.W_X_FLOATING_POINT_DATA_FORMAT_32BIT_IDENTIFIER:
@@ -192,6 +230,8 @@ namespace TableAlgorithmicMethod.ViewModels
 
                 Log.Error(ex, "Failed to calculate");
                 MessageBox.Show(errorMessage, "Error");
+
+                StatusBarText = "Failed to calculate.";
             }
         }
 
@@ -205,8 +245,8 @@ namespace TableAlgorithmicMethod.ViewModels
         {
             ScalarMultiplicationResult classicMethodMultiplicationResult = _classicScalarMultiplier.Multiply(weights, inputs, arithmeticOperations);
             ScalarMultiplicationResult tableAlgorithmicMethodMultiplicationResult = _tableAlgorithmicScalarMultiplier.Multiply(weights, inputs, arithmeticOperations);
-            ////Log.Information("Finished scalar multiplication of two vectors of fixed-point {Format} numbers in {Elapsed} ticks.", format, classicMethodMultiplicationResult.ElapsedTicks);
-            Log.Information("{First} and {Second}", BinaryOperations.ToString(classicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize), BinaryOperations.ToString(tableAlgorithmicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize));
+
+            StatusBarText = $"Calculation successfuly finished. Calculation error: {arithmeticOperations.Error(classicMethodMultiplicationResult.Value, tableAlgorithmicMethodMultiplicationResult.Value)}";
 
             UpdateResult(classicMethodMultiplicationResult.Value, tableAlgorithmicMethodMultiplicationResult.Value, arithmeticOperations.NumberSize);
             _tableAlgorithmicMethodColumnSeries.Values[0] = tableAlgorithmicMethodMultiplicationResult.ElapsedTicks;
@@ -216,7 +256,7 @@ namespace TableAlgorithmicMethod.ViewModels
 
         private void UpdateResult(int classicMethodMultiplicationResultValue, int tableAlgorithmicMethodMultiplicationResultValue, int numberSize)
         {
-            Result = $"{BinaryOperations.ToString(classicMethodMultiplicationResultValue, numberSize)} – Classic" +
+            Result = $"{BinaryOperations.ToString(classicMethodMultiplicationResultValue, numberSize)} – Classical" +
                 $"\n{BinaryOperations.ToString(tableAlgorithmicMethodMultiplicationResultValue, numberSize)} – Table-algorithmic";
         }
 

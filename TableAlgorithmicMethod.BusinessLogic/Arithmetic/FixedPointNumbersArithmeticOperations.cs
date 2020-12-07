@@ -33,5 +33,54 @@ namespace TableAlgorithmicMethod.BusinessLogic.Arithmetic
                     throw new Exception($"Format {FixedPointNumberFormat} is not supported");
             }
         }
+
+        public int GetExponent(int a)
+        {
+            return 0;
+        }
+
+        public int GetMantissa(int a)
+        {
+            switch (FixedPointNumberFormat)
+            {
+                case FixedPointNumberFormat.Q15:
+                    return a & 0x7FFF;
+
+                case FixedPointNumberFormat.Q23:
+                    return a & 0x7FFFFF;
+
+                default:
+                    throw new Exception($"Format {FixedPointNumberFormat} is not supported");
+            }
+        }
+
+        public int MantissaRigthShift(int a, int shift)
+        {
+            switch (FixedPointNumberFormat)
+            {
+                case FixedPointNumberFormat.Q15:
+                    return ((a & 0x7FFF) >> shift) | (a & 8000);
+
+                case FixedPointNumberFormat.Q23:
+                    return ((a & 0x7FFFFF) >> shift) | (a & 80000);
+
+                default:
+                    throw new Exception($"Format {FixedPointNumberFormat} is not supported");
+            }
+        }
+
+        public double Error(int a, int b)
+        {
+            double decimalA = 0;
+            double decimalB = 0;
+
+            for (int i = 1, j = (int)FixedPointNumberFormat - 1; j >= 0; i++, j--)
+            {
+                decimalA += ((a >> j) & 0x1) * Math.Pow(2, -i);
+                decimalB += ((b >> j) & 0x1) * Math.Pow(2, -i);
+            }
+
+            return Math.Abs(decimalA - decimalB);
+        }
     }
 }

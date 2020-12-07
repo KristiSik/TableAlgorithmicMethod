@@ -34,7 +34,7 @@ namespace TableAlgorithmicMethod.BusinessLogic.ScalarMultipliers
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            for (int k = 0; k < 100000; k++)
+            for (int k = 0; k < 10000; k++)
             {
                 result = 0;
                 for (int i = 0; i < numberOfElements; i++)
